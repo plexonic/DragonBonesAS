@@ -77,7 +77,8 @@ package dragonBones.utils
 			
 			matrixToTransform(_helpTransformMatrix, transform, transform.scaleX * parent.scaleX >= 0, transform.scaleY * parent.scaleY >= 0);
 		}
-		
+
+		//@daal was here :) some optimiziation done
 		public static function matrixToTransform(matrix:Matrix, transform:DBTransform, scaleXF:Boolean, scaleYF:Boolean):void
 		{
 			transform.x = matrix.tx;
@@ -85,34 +86,35 @@ package dragonBones.utils
 			transform.scaleX = Math.sqrt(matrix.a * matrix.a + matrix.b * matrix.b) * (scaleXF ? 1 : -1);
 			transform.scaleY = Math.sqrt(matrix.d * matrix.d + matrix.c * matrix.c) * (scaleYF ? 1 : -1);
 			
-			var skewXArray:Array = [];
-			skewXArray[0] = Math.acos(matrix.d / transform.scaleY);
-			skewXArray[1] = -skewXArray[0];
-			skewXArray[2] = Math.asin(-matrix.c / transform.scaleY);
-			skewXArray[3] = skewXArray[2] >= 0 ? Math.PI - skewXArray[2] : skewXArray[2] - Math.PI;
-			
-			if(Number(skewXArray[0]).toFixed(4) == Number(skewXArray[2]).toFixed(4) || Number(skewXArray[0]).toFixed(4) == Number(skewXArray[3]).toFixed(4))
+			var skew:Array = new Array(4);
+			skew[0] = Math.acos(matrix.d / transform.scaleY);
+			skew[1] = -skew[0];
+			skew[2] = Math.asin(-matrix.c / transform.scaleY);
+			skew[3] = skew[2] >= 0 ? Math.PI - skew[2] : skew[2] - Math.PI;
+			var skewXArray0Fixed : Number = skew[0].toFixed(4);
+
+			if(skewXArray0Fixed == skew[2].toFixed(4) || skewXArray0Fixed == skew[3].toFixed(4))
 			{
-				transform.skewX = skewXArray[0];
+				transform.skewX = skew[0];
+			}
+			else
+			{
+				transform.skewX = skew[1];
+			}
+
+			skew[0] = Math.acos(matrix.a / transform.scaleX);
+			skew[1] = -skew[0];
+			skew[2] = Math.asin(matrix.b / transform.scaleX);
+			skew[3] = skew[2] >= 0 ? Math.PI - skew[2] : skew[2] - Math.PI;
+			var skewYArray0Fixed : Number = skew[0].toFixed(4);
+			
+			if(skewYArray0Fixed == skew[2].toFixed(4) || skewYArray0Fixed == skew[3].toFixed(4))
+			{
+				transform.skewY = skew[0];
 			}
 			else 
 			{
-				transform.skewX = skewXArray[1];
-			}
-			
-			var skewYArray:Array = [];
-			skewYArray[0] = Math.acos(matrix.a / transform.scaleX);
-			skewYArray[1] = -skewYArray[0];
-			skewYArray[2] = Math.asin(matrix.b / transform.scaleX);
-			skewYArray[3] = skewYArray[2] >= 0 ? Math.PI - skewYArray[2] : skewYArray[2] - Math.PI;
-			
-			if(Number(skewYArray[0]).toFixed(4) == Number(skewYArray[2]).toFixed(4) || Number(skewYArray[0]).toFixed(4) == Number(skewYArray[3]).toFixed(4))
-			{
-				transform.skewY = skewYArray[0];
-			}
-			else 
-			{
-				transform.skewY = skewYArray[1];
+				transform.skewY = skew[1];
 			}
 			
 		}
