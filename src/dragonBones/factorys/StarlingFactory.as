@@ -1,10 +1,14 @@
-﻿package dragonBones.factorys {
+﻿package dragonBones.factorys
+{
 /**
  * Copyright 2012-2013. DragonBones. All Rights Reserved.
  * @playerversion Flash 10.0, Flash 10
  * @langversion 3.0
  * @version 2.0
  */
+import flash.display.BitmapData;
+import flash.display.MovieClip;
+import flash.geom.Rectangle;
 
 import dragonBones.Armature;
 import dragonBones.Slot;
@@ -13,10 +17,7 @@ import dragonBones.display.StarlingSlot;
 import dragonBones.textures.ITextureAtlas;
 import dragonBones.textures.StarlingTextureAtlas;
 
-import flash.display.BitmapData;
-import flash.display.MovieClip;
-import flash.geom.Rectangle;
-
+import starling.core.Starling;
 import starling.display.Image;
 import starling.display.Sprite;
 import starling.textures.SubTexture;
@@ -39,14 +40,15 @@ use namespace dragonBones_internal;
  * import dragonBones.factorys.BaseFactory;
  *
  * [Embed(source = "../assets/Dragon2.png", mimeType = "application/octet-stream")]
- *    private static const ResourcesData:Class;
+ *	private static const ResourcesData:Class;
  * var factory:StarlingFactory = new StarlingFactory();
  * factory.addEventListener(Event.COMPLETE, textureCompleteHandler);
  * factory.parseData(new ResourcesData());
  * </listing>
  * @see dragonBones.Armature
  */
-public class StarlingFactory extends BaseFactory {
+public class StarlingFactory extends BaseFactory
+{
     /**
      * Whether to generate mapmaps (true) or not (false).
      */
@@ -67,20 +69,24 @@ public class StarlingFactory extends BaseFactory {
     /**
      * Creates a new StarlingFactory instance.
      */
-    public function StarlingFactory() {
+    public function StarlingFactory()
+    {
         super(this);
         scaleForTexture = 1;
     }
 
     /** @private */
-    override protected function generateTextureAtlas(content:Object, textureAtlasRawData:Object):ITextureAtlas {
+    override protected function generateTextureAtlas(content:Object, textureAtlasRawData:Object):ITextureAtlas
+    {
         var texture:Texture;
         var bitmapData:BitmapData;
-        if (content is BitmapData) {
+        if (content is BitmapData)
+        {
             bitmapData = content as BitmapData;
             texture = Texture.fromBitmapData(bitmapData, generateMipMaps, optimizeForRenderToTexture);
         }
-        else if (content is MovieClip) {
+        else if (content is MovieClip)
+        {
             var width:int = getNearest2N(content.width) * scaleForTexture;
             var height:int = getNearest2N(content.height) * scaleForTexture;
 
@@ -98,32 +104,45 @@ public class StarlingFactory extends BaseFactory {
             movieClip.gotoAndStop(movieClip.totalFrames);
             texture = Texture.fromBitmapData(bitmapData, generateMipMaps, optimizeForRenderToTexture, scaleForTexture);
         }
-        else {
+        else
+        {
             throw new Error();
         }
         var textureAtlas:StarlingTextureAtlas = new StarlingTextureAtlas(texture, textureAtlasRawData, false);
-        textureAtlas._bitmapData = bitmapData;
+        if (Starling.handleLostContext)
+        {
+            textureAtlas._bitmapData = bitmapData;
+        }
+        else
+        {
+            bitmapData.dispose();
+        }
         return textureAtlas;
     }
 
     /** @private */
-    override protected function generateArmature():Armature {
+    override protected function generateArmature():Armature
+    {
         var armature:Armature = new Armature(new Sprite());
         return armature;
     }
 
     /** @private */
-    override protected function generateSlot():Slot {
+    override protected function generateSlot():Slot
+    {
         var slot:Slot = new StarlingSlot();
         return slot;
     }
 
     /** @private */
-    override protected function generateDisplay(textureAtlas:Object, fullName:String, pivotX:Number, pivotY:Number):Object {
+    override protected function generateDisplay(textureAtlas:Object, fullName:String, pivotX:Number, pivotY:Number):Object
+    {
         var subTexture:SubTexture = (textureAtlas as TextureAtlas).getTexture(fullName) as SubTexture;
-        if (subTexture) {
+        if (subTexture)
+        {
             var subTextureFrame:Rectangle = (textureAtlas as TextureAtlas).getFrame(fullName);
-            if (subTextureFrame) {
+            if(subTextureFrame)
+            {
                 pivotX += subTextureFrame.x;
                 pivotY += subTextureFrame.y;
             }
@@ -131,14 +150,15 @@ public class StarlingFactory extends BaseFactory {
             var image:Image = new Image(subTexture);
             image.pivotX = pivotX;
             image.pivotY = pivotY;
-            image.textureSmoothing = displaySmoothing;
+            image.smoothing = displaySmoothing;
             return image;
         }
         return null;
     }
 
-    private function getNearest2N(_n:uint):uint {
-        return _n & _n - 1 ? 1 << _n.toString(2).length : _n;
+    private function getNearest2N(_n:uint):uint
+    {
+        return _n & _n - 1?1 << _n.toString(2).length:_n;
     }
 }
 }
