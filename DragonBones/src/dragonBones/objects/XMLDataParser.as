@@ -1,4 +1,4 @@
-﻿﻿package dragonBones.objects
+﻿package dragonBones.objects
 {
 	/**
 	 * Copyright 2012-2013. DragonBones. All Rights Reserved.
