@@ -319,8 +319,8 @@
 			
 			if(_eventList.length)
 			{
-				for(var j:int=0, l:uint = _eventList.length; j < l; ++j) {
-					this.dispatchEvent(_eventList[j]);
+				for(var k:int=0, l:uint = _eventList.length; k < l; ++k) {
+					this.dispatchEvent(_eventList[k]);
 				}
 				_eventList.length = 0;
 			}
